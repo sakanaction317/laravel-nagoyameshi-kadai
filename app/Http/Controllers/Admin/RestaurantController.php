@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Restaurant;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -35,7 +36,8 @@ class RestaurantController extends Controller
     //店舗登録ページ
     public function create()
     {
-        return view('admin.restaurants.create');
+        $categories = Category::all();
+        return view('admin.restaurants.create', compact('categories'));
     }
 
     //店舗登録機能
@@ -65,15 +67,26 @@ class RestaurantController extends Controller
             $validatedData['image'] = '';
         }
 
-        Restaurant::create($validatedData);
+        // 新しいレストランの作成
+        $restaurant = Restaurant::create($validatedData);
 
+        // カテゴリのID配列の取得
+        $category_ids = array_filter($request->input('category_ids'));
+
+        // カテゴリの同期
+        $restaurant->categories()->sync($category_ids);
+
+        // リダイレクト
         return redirect()->route('admin.restaurants.index')->with('flash_message', '店舗を登録しました。');
     }
 
     //店舗編集ページ
     public function edit(Restaurant $restaurant)
     {
-        return view('admin.restaurants.edit', compact('restaurant'));
+        $categories = Category::all();
+        $category_ids = $restaurant->categories->pluck('id')->toArray();
+
+        return view('admin.restaurants.edit', compact('restaurant', 'categories', 'category_ids'));
     }
 
     //店舗更新機能
@@ -98,7 +111,14 @@ class RestaurantController extends Controller
             $validatedData['image'] = basename($image);
         }
 
+        // レストランのデータを更新
         $restaurant->update($validatedData);
+
+        // カテゴリのID配列の取得
+        $category_ids = array_filter($request->input('category_ids', []));
+
+        // カテゴリの同期
+        $restaurant->categories()->sync($category_ids);
 
         return redirect()->route('admin.restaurants.show', $restaurant)->with('flash_message', '店舗を編集しました。');
     }
