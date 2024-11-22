@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Restaurant;
 use App\Models\Admin;
 use App\Models\Category;
+use App\Models\RegularHoliday;
 
 class RestaurantTest extends TestCase
 {
@@ -129,6 +130,8 @@ class RestaurantTest extends TestCase
         $admin = Admin::factory()->create();
         $categories = Category::factory()->count(3)->create();
         $category_ids = $categories->pluck('id')->toArray();
+        $regular_holidays = RegularHoliday::factory()->count(2)->create();
+        $regular_holiday_ids = $regular_holidays->pluck('id')->toArray();
 
         $restaurant_data = [
             'name' => 'テスト',
@@ -141,6 +144,7 @@ class RestaurantTest extends TestCase
             'closing_time' => '20:00',
             'seating_capacity' => 50,
             'category_ids' => $category_ids,
+            'regular_holiday_ids' => $regular_holiday_ids,
         ];
 
         $response = $this->actingAs($admin, 'admin')->post(route('admin.restaurants.store'), [
@@ -154,9 +158,11 @@ class RestaurantTest extends TestCase
             'closing_time' => '20:00',
             'seating_capacity' => 50,
             'category_ids' => $category_ids,
+            'regular_holiday_ids' => $regular_holiday_ids,
         ]);
 
         unset($restaurant_data['category_ids']);
+        unset($restaurant_data['regular_holiday_ids']);
 
         $response->assertRedirect(route('admin.restaurants.index'));
         $this->assertDatabaseHas('restaurants', [
@@ -175,6 +181,13 @@ class RestaurantTest extends TestCase
             $this->assertDatabaseHas('category_restaurant', [
                 'restaurant_id' => Restaurant::latest('id')->first()->id,
                 'category_id' => $category_id
+            ]);
+        }
+
+        foreach ($regular_holiday_ids as $regular_holiday_id) {
+            $this->assertDatabaseHas('regular_holiday_restaurant', [
+                'restaurant_id' => Restaurant::latest('id')->first()->id,
+                'regular_holiday_id' => $regular_holiday_id,
             ]);
         }
     }
@@ -251,6 +264,8 @@ class RestaurantTest extends TestCase
         $restaurant = Restaurant::factory()->create();
         $categories = Category::factory()->count(3)->create();
         $category_ids = $categories->pluck('id')->toArray();
+        $regular_holidays = RegularHoliday::factory()->count(2)->create();
+        $regular_holiday_ids = $regular_holidays->pluck('id')->toArray();
 
         $new_restaurant_data = [
             'name' => '更新テスト',
@@ -263,9 +278,10 @@ class RestaurantTest extends TestCase
             'closing_time' => '21:00',
             'seating_capacity' => 60,
             'category_ids' => $category_ids,
+            'regular_holiday_ids' => $regular_holiday_ids,
         ];
 
-        $response = $this->actingAs($admin, 'admin')->patch(route('admin.restaurants.update', $restaurant), [
+        $response = $this->actingAs($admin, 'admin')->patch(route('admin.restaurants.update', $restaurant),  [
             'name' => '更新テスト',
             'description' => '更新テスト',
             'lowest_price' => 2000,
@@ -276,9 +292,11 @@ class RestaurantTest extends TestCase
             'closing_time' => '21:00',
             'seating_capacity' => 60,
             'category_ids' => $category_ids,
+            'regular_holiday_ids' => $regular_holiday_ids,
         ]);
 
         unset($new_restaurant_data['category_ids']);
+        unset($new_restaurant_data['regular_holiday_ids']);
         
         $response->assertRedirect(route('admin.restaurants.show', $restaurant));
         $this->assertDatabaseHas('restaurants', [
@@ -297,6 +315,13 @@ class RestaurantTest extends TestCase
             $this->assertDatabaseHas('category_restaurant', [
                 'restaurant_id' => $restaurant->id,
                 'category_id' => $category_id
+            ]);
+        }
+
+        foreach ($regular_holiday_ids as $regular_holiday_id) {
+            $this->assertDatabaseHas('regular_holiday_restaurant', [
+                'restaurant_id' => $restaurant->id,
+                'regular_holiday_id' => $regular_holiday_id,
             ]);
         }
     }

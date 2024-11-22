@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Restaurant;
 use App\Models\Category;
+use App\Models\RegularHoliday;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -37,7 +38,8 @@ class RestaurantController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('admin.restaurants.create', compact('categories'));
+        $regular_holidays = RegularHoliday::all();
+        return view('admin.restaurants.create', compact('categories', 'regular_holidays'));
     }
 
     //店舗登録機能
@@ -76,6 +78,10 @@ class RestaurantController extends Controller
         // カテゴリの同期
         $restaurant->categories()->sync($category_ids);
 
+        // 定休日の同期
+        $regular_holiday_ids = array_filter($request->input('regular_holiday_ids'));
+        $restaurant->regular_holidays()->sync($regular_holiday_ids);
+
         // リダイレクト
         return redirect()->route('admin.restaurants.index')->with('flash_message', '店舗を登録しました。');
     }
@@ -84,9 +90,11 @@ class RestaurantController extends Controller
     public function edit(Restaurant $restaurant)
     {
         $categories = Category::all();
+        $regular_holidays = RegularHoliday::all();
         $category_ids = $restaurant->categories->pluck('id')->toArray();
+        $regular_holiday_ids = $restaurant->regular_holidays->pluck('id')->toArray();
 
-        return view('admin.restaurants.edit', compact('restaurant', 'categories', 'category_ids'));
+        return view('admin.restaurants.edit', compact('restaurant', 'categories', 'category_ids', 'regular_holidays', 'regular_holiday_ids'));
     }
 
     //店舗更新機能
@@ -120,6 +128,10 @@ class RestaurantController extends Controller
         // カテゴリの同期
         $restaurant->categories()->sync($category_ids);
 
+        // 定休日の同期
+        $regular_holiday_ids = array_filter($request->input('regular_holiday_ids', []));
+        $restaurant->regular_holidays()->sync($regular_holiday_ids);
+
         return redirect()->route('admin.restaurants.show', $restaurant)->with('flash_message', '店舗を編集しました。');
     }
 
@@ -127,7 +139,7 @@ class RestaurantController extends Controller
     public function destroy(Restaurant $restaurant)
     {
         if ($restaurant->image) {
-            Storage::delete('public/restaurant' . $restaurant->image); //画像ファイルを削除
+            Storage::delete('public/restaurants' . $restaurant->image); //画像ファイルを削除
         }
         $restaurant->delete();
 
