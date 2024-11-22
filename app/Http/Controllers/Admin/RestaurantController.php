@@ -79,7 +79,10 @@ class RestaurantController extends Controller
         $restaurant->categories()->sync($category_ids);
 
         // 定休日の同期
-        $regular_holiday_ids = array_filter($request->input('regular_holiday_ids'));
+        $regular_holiday_ids = array_filter($request->input('regular_holiday_ids', []));
+        if (empty($regular_holiday_ids)) {
+            $regular_holiday_ids = [];
+        }
         $restaurant->regular_holidays()->sync($regular_holiday_ids);
 
         // リダイレクト
