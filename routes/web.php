@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RestaurantController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\TermController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,4 +47,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin
     Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::patch('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // 会社概要のルーティング
+    Route::get('company', [CompanyController::class, 'index'])->name('company.index');
+    Route::get('company/{company}/edit', [CompanyController::class, 'edit'])->name('company.edit');
+    Route::patch('company/{company}', [CompanyController::class, 'update'])->name('company.update');
+
+    // 利用規約のルーティング
+    Route::get('terms', [TermController::class, 'index'])->name('terms.index');
+    Route::get('terms/{term}/edit', [TermController::class, 'edit'])->name('terms.edit');
+    Route::patch('terms/{term}', [TermController::class, 'update'])->name('terms.update');
 });
