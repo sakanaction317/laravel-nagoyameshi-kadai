@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => '渡部明',
             'kana' => 'ワタナベアキラ',
-            'email' => 'user@example.com',
+            'email' => 'new_user@example.com',
             'password' => Hash::make('password123'),
             'postal_code' => '1234567',
             'address' => '東京都葛飾区',
