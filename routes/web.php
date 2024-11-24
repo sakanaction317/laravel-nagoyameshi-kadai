@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\RestaurantController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\TermController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,4 +58,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin
     Route::get('terms', [TermController::class, 'index'])->name('terms.index');
     Route::get('terms/{term}/edit', [TermController::class, 'edit'])->name('terms.edit');
     Route::patch('terms/{term}', [TermController::class, 'update'])->name('terms.update');
+});
+
+Route::group(['middleware' => 'guest:admin'], function() {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
 });
