@@ -1,14 +1,15 @@
 <?php
 
-
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\HomeController as AdminHomeController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\RestaurantController as AdminRestaurantController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CompanyController  as AdminCompanyController;
+use App\Http\Controllers\Admin\TermController as AdminTermController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\RestaurantController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\CompanyController;
-use App\Http\Controllers\Admin\TermController;
-use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,46 +21,39 @@ use App\Http\Controllers\HomeController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get('/', function () {
+/*Route::get('/', function () {
     return view('welcome');
 });
+*/
 
+require __DIR__ . '/auth.php';
 
-require __DIR__.'/auth.php';
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
+/*管理者としてログインしている状態でのみアクセスできるように認可を設定*/
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin'], function () {
     Route::get('home', [Admin\HomeController::class, 'index'])->name('home');
-    Route::resource('users', UserController::class)->only(['index', 'show']);
-    
-    //RestaurantControllerに対応するルーティングを設定
-    Route::get('restaurants', [RestaurantController::class, 'index'])->name('restaurants.index');
-    Route::get('restaurants/create', [RestaurantController::class, 'create'])->name('restaurants.create');
-    Route::post('restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
-    Route::get('restaurants/{restaurant}', [RestaurantController::class, 'show'])->name('restaurants.show');
-    Route::get('restaurants/{restaurant}/edit', [RestaurantController::class, 'edit'])->name('restaurants.edit');
-    Route::put('restaurants/{restaurant}', [RestaurantController::class, 'update'])->name('restaurants.update');
-    Route::patch('restaurants/{restaurant}', [RestaurantController::class, 'update'])->name('restaurants.update');
-    Route::delete('restaurants/{restaurant}', [RestaurantController::class, 'destroy'])->name('restaurants.destroy');
+    Route::resource('users', Admin\UserController::class)->only(['index', 'show']);
+    Route::resource('restaurants', Admin\RestaurantController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('categories', Admin\CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('company', Admin\CompanyController::class)->only(['index', 'edit', 'update']);
+    Route::resource('terms', Admin\TermController::class)->only(['index', 'edit', 'update']);
 
-    // CategoryControllerに対応するルーティングを設定
-    Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
-    Route::put('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
-    Route::patch('categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
-    Route::delete('categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-
-    // 会社概要のルーティング
-    Route::get('company', [CompanyController::class, 'index'])->name('company.index');
-    Route::get('company/{company}/edit', [CompanyController::class, 'edit'])->name('company.edit');
-    Route::patch('company/{company}', [CompanyController::class, 'update'])->name('company.update');
-
-    // 利用規約のルーティング
-    Route::get('terms', [TermController::class, 'index'])->name('terms.index');
-    Route::get('terms/{term}/edit', [TermController::class, 'edit'])->name('terms.edit');
-    Route::patch('terms/{term}', [TermController::class, 'update'])->name('terms.update');
+    /*個別で指定したい場合
+    Route::get('users', [Admin\UserController::class, 'index'])->name('users.index');
+Route::get('users/{user}', [Admin\UserController::class, 'show'])->name('users.show');
+*/
 });
 
-Route::group(['middleware' => 'guest:admin'], function() {
+/*管理者としてログインしていない状態でのみアクセスできるように認可を設定*/
+Route::group(['middleware' => 'guest:admin'], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
+   
+
+    /*ログイン済*/
+    Route::group(['middleware' => ['auth']], function () {
+        Route::resource('user', UserController::class)->only(['index', 'edit', 'update']);
+       
+
+    });
 });
