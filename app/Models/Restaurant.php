@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Category;
 use App\Models\RegularHoliday;
+use Kyslik\ColumnSortable\Sortable;
 
 class Restaurant extends Model
 {
-    use HasFactory;
+    use HasFactory, Sortable;
     
     //一括代入を許可するフィールドを指定します
     protected $fillable = [
