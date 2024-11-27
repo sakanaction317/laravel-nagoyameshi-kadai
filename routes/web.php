@@ -49,7 +49,7 @@ Route::get('users/{user}', [Admin\UserController::class, 'show'])->name('users.s
 /*管理者としてログインしていない状態でのみアクセスできるように認可を設定*/
 Route::group(['middleware' => 'guest:admin'], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
-    Route::resource('restaurants', RestaurantController::class)->only('index');
+    Route::resource('restaurants', RestaurantController::class)->only('index', 'show');
    
 
     /*ログイン済*/
