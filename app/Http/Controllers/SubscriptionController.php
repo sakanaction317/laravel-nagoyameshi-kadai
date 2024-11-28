@@ -45,7 +45,7 @@ class SubscriptionController extends Controller
 
     public function destroy(Request $request)
     {
-        $request->user()->subscription('premium_plan')->cancel();
+        $request->user()->subscription('premium_plan')->cancelNow();
         return redirect()->route('home')->with('flash_message', '有料プランを解約しました。');
     }
 }
