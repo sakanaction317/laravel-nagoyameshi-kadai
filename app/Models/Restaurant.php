@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Category;
 use App\Models\RegularHoliday;
+use App\Models\Review;
+use App\Models\Reservation;
 use Kyslik\ColumnSortable\Sortable;
 
 class Restaurant extends Model
@@ -51,5 +53,17 @@ class Restaurant extends Model
     {
         return $query->withAvg('reviews', 'score')->orderBy('reviews_avg_score', $direction);
     } 
+
+    // 予約機能とのリレーションを設定
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
+    // 予約数が多い順に並び替えるメソッド
+    public function popularSortable($query, $direction)
+    {
+        return $this->Restaurant::withCount('reservations')->orderBy('reservations_count', $direction);
+    }
 }
 
