@@ -65,5 +65,11 @@ class Restaurant extends Model
     {
         return $this->Restaurant::withCount('reservations')->orderBy('reservations_count', $direction);
     }
+
+    // userモデルとのリレーションを設定
+    public function favorite_users()
+    {
+        return $this->belongsToMany(User::class, 'restaurants_user')->withTimestamps();
+    }
 }
 

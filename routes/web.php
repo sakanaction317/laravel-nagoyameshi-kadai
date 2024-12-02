@@ -6,6 +6,7 @@ use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReservationController;
+use App\http\Controllers\FavoriteController;
 use App\Http\Controllers\Admin\HomeController as AdminHomeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\RestaurantController as AdminRestaurantController;
@@ -72,6 +73,9 @@ Route::group(['middleware' => 'guest:admin'], function () {
             Route::resource('restaurants.reviews', ReviewController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
             Route::resource('restaurants.reservations', ReservationController::class)->only(['create', 'store']);
             Route::resource('reservations', ReservationController::class)->only(['index', 'destroy']);
+            Route::get('favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+            Route::post('favorites/{restaurant}', [FavoriteController::class, 'store'])->name('favorites.store');
+            Route::delete('favorites/{restaurant}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
         });
 
         Route::group(['middleware' => [NotSubscribed::class]], function(){

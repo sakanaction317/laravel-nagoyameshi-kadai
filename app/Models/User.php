@@ -61,4 +61,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Reservation::class);
     }
+
+    // 店舗とのリレーションを設定
+    public function favorite_restaurants()
+    {
+        return $this->belongsToMany(Restaurant::class, 'restaurants_user')->withTimestamps();
+    }
 }
