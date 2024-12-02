@@ -35,8 +35,6 @@ use App\Http\Middleware\NotSubscribed;
 
 require __DIR__ . '/auth.php';
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
-
 /*管理者としてログインしている状態でのみアクセスできるように認可を設定*/
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin'], function () {
     Route::get('home', [Admin\HomeController::class, 'index'])->name('home');
@@ -55,7 +53,7 @@ Route::get('users/{user}', [Admin\UserController::class, 'show'])->name('users.s
 /*管理者としてログインしていない状態でのみアクセスできるように認可を設定*/
 Route::group(['middleware' => 'guest:admin'], function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
-    Route::resource('restaurants', RestaurantController::class)->only('index', 'show');
+    Route::resource('restaurants', RestaurantController::class)->only(['index', 'show']);
    
 
     /*ログイン済*/
